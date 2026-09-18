@@ -1,18 +1,70 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Sudoku Game</title>
   <link rel="stylesheet" href="/static/styles.css">
 </head>
 <body>
-  <h1>Sudoku Game</h1>
-  <div id="sudoku-board"></div>
-  <div class="controls">
-    <button id="new-game">New Game</button>
-    <button id="check-solution">Check Solution</button>
-    <span id="message"></span>
-  </div>
+  <main class="app-shell">
+    <header class="game-header">
+      <h1>Sudoku Game</h1>
+      <button id="theme-toggle" class="theme-toggle" type="button" aria-pressed="false">
+        Enable dark mode
+      </button>
+    </header>
+
+    <section class="toolbar" aria-label="Game controls">
+      <label class="difficulty-control" for="difficulty-select">
+        <span>Difficulty</span>
+        <select id="difficulty-select" aria-label="Select difficulty">
+          <option value="easy">Easy</option>
+          <option value="medium" selected>Medium</option>
+          <option value="hard">Hard</option>
+        </select>
+      </label>
+
+      <div class="button-group">
+        <button id="new-game" type="button">New Game</button>
+        <button id="check-solution" type="button">Check Solution</button>
+        <button id="hint-button" type="button">Hint</button>
+      </div>
+    </section>
+
+    <div class="status-row">
+      <div id="message" class="message" aria-live="polite"></div>
+      <div id="timer-display" class="timer-display" aria-live="polite">Time: 00:00</div>
+      <div id="hint-count" class="hint-count" aria-live="polite">Hints used: 0</div>
+    </div>
+
+    <section id="completion-summary" class="completion-summary" aria-live="polite" hidden>
+      <h2>Puzzle complete!</h2>
+      <p id="completion-details"></p>
+    </section>
+
+    <section class="leaderboard" aria-labelledby="leaderboard-heading">
+      <h2 id="leaderboard-heading">Top 10</h2>
+      <div class="leaderboard-table-wrapper">
+        <table>
+          <caption class="visually-hidden">Fastest completed Sudoku games</caption>
+          <thead>
+            <tr>
+              <th scope="col">Rank</th>
+              <th scope="col">Player</th>
+              <th scope="col">Time</th>
+              <th scope="col">Difficulty</th>
+              <th scope="col">Hints</th>
+            </tr>
+          </thead>
+          <tbody id="leaderboard-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <div id="sudoku-board" class="sudoku-board" role="grid" aria-label="Sudoku board"></div>
+  </main>
+
   <script src="/static/main.js"></script>
 </body>
 </html>
