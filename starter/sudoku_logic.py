@@ -1,6 +1,8 @@
 import copy
 import random
 
+from sudoku_engine import generate_puzzle as generate_unique_puzzle
+
 SIZE = 9
 EMPTY = 0
 
@@ -49,9 +51,5 @@ def remove_cells(board, clues):
             attempts -= 1
 
 def generate_puzzle(clues=35):
-    board = create_empty_board()
-    fill_board(board)
-    solution = deep_copy(board)
-    remove_cells(board, clues)
-    puzzle = deep_copy(board)
-    return puzzle, solution
+    """Generate a puzzle whose solution is guaranteed to be unique."""
+    return generate_unique_puzzle(clues)

@@ -81,6 +81,21 @@ function isValidScore(score) {
     && score.hintsUsed >= 0;
 }
 
+function normalizeScores(scores) {
+  if (!Array.isArray(scores)) {
+    return [];
+  }
+
+  return scores
+    .filter(isValidScore)
+    .map((score) => ({
+      name: score.name.trim(),
+      timeSeconds: score.timeSeconds,
+      difficulty: score.difficulty,
+      hintsUsed: score.hintsUsed,
+    }));
+}
+
 function sortScores(scores) {
   return [...scores].sort((first, second) => {
     if (first.timeSeconds !== second.timeSeconds) {
@@ -93,7 +108,7 @@ function sortScores(scores) {
   });
 }
 
-function keepTopTen(scores) {
+function limitScores(scores) {
   return sortScores(scores).slice(0, MAX_LEADERBOARD_ENTRIES);
 }
 
@@ -105,18 +120,21 @@ function loadScores() {
     }
 
     const parsedScores = JSON.parse(storedScores);
-    if (!Array.isArray(parsedScores)) {
-      return [];
+    const topScores = limitScores(normalizeScores(parsedScores));
+    const canonicalScores = JSON.stringify(topScores);
+
+    if (storedScores !== canonicalScores) {
+      window.localStorage.setItem(LEADERBOARD_STORAGE_KEY, canonicalScores);
     }
 
-    return keepTopTen(parsedScores.filter(isValidScore));
+    return topScores;
   } catch (error) {
     return [];
   }
 }
 
 function saveScores(scores) {
-  const topScores = keepTopTen(scores.filter(isValidScore));
+  const topScores = limitScores(normalizeScores(scores));
 
   try {
     window.localStorage.setItem(LEADERBOARD_STORAGE_KEY, JSON.stringify(topScores));
@@ -131,14 +149,17 @@ function addScore(score) {
     return loadScores();
   }
 
-  const scores = keepTopTen([...loadScores(), score]);
+  const scores = limitScores([...loadScores(), {
+    ...score,
+    name: score.name.trim(),
+  }]);
   saveScores(scores);
   return scores;
 }
 
 function renderLeaderboard(scores = loadScores()) {
   leaderboardBodyElement.innerHTML = '';
-  const topScores = keepTopTen(scores.filter(isValidScore));
+  const topScores = limitScores(normalizeScores(scores));
 
   if (topScores.length === 0) {
     const row = document.createElement('tr');

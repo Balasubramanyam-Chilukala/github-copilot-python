@@ -1,5 +1,7 @@
 import json
 
+from sudoku_engine import count_solutions
+
 
 def test_index_route_returns_html(client):
     response = client.get('/')
@@ -22,6 +24,22 @@ def test_new_game_route_returns_board_and_solution(client):
     assert len(payload['solution']) == 9
     assert all(len(row) == 9 for row in payload['puzzle'])
     assert all(len(row) == 9 for row in payload['solution'])
+    assert sum(cell != 0 for row in payload['puzzle'] for cell in row) == 35
+    assert payload['puzzle'] != payload['solution']
+    assert count_solutions(payload['puzzle'], limit=2) == 1
+
+
+def test_check_solution_route_accepts_the_current_solution(client):
+    new_game_response = client.get('/new?clues=35')
+    solution = new_game_response.get_json()['solution']
+
+    response = client.post(
+        '/check',
+        json={'board': solution},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json() == {'incorrect': []}
 
 
 def test_check_solution_route_returns_incorrect_cells_for_wrong_board(client):
